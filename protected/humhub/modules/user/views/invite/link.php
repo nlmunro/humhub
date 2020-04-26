@@ -15,18 +15,23 @@ use yii\bootstrap\ActiveForm;
 
             <br/>
 
-            <?php echo Yii::t('UserModule.invite', 'Please add the email addresses of people you want to invite below.'); ?>
-            <br/><br/>
+            <?php echo Yii::t('UserModule.invite', 'Please send the link below to <strong>one</strong> person you want to invite.'); ?>
+            <br/>
+            <?php echo Yii::t('UserModule.invite', 'Important: create another link for each person.'); ?>
+            <br/>
+            <br/>
             <div class="form-group">
-                <?php echo $form->field($model, 'emails')->textarea(['rows' => '3', 'placeholder' => Yii::t('UserModule.invite', 'Email address(es)'), 'id' => 'emails'])->label(false)->hint(Yii::t('UserModule.invite', 'Separate multiple email addresses by comma.')); ?>
+                <textarea class="link-txt" style="width:80%; margin-right:10px; border: none; overflow: hidden; height: 17px;" spellcheck='false' readonly rows="1"><?php echo $link; ?></textarea>
+                <a href="#" data-action-click="copyToClipboard" data-action-target=".link-txt"><i class="fa fa-clipboard" aria-hidden="true"></i></a>
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#" class="btn btn-primary" data-action-click="ui.modal.submit" data-action-url="<?= Url::to(['/user/invite']) ?>" data-ui-loader>
-                <?= Yii::t('UserModule.invite', 'Send invite') ?>
-            </a>
             <a href="#" class="btn btn-primary" data-action-click="ui.modal.submit" data-action-url="<?= Url::to(['/user/invite/link']) ?>" data-ui-loader>
-                <?= Yii::t('UserModule.invite', 'Create link') ?>
+                <?= Yii::t('UserModule.invite', 'Create another link') ?>
+            </a>
+
+            <a href="#" class="btn btn-primary" data-dismiss="modal">
+                <?= Yii::t('UserModule.invite', 'Done') ?>
             </a>
         </div>
 

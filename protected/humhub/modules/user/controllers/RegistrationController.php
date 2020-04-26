@@ -106,7 +106,12 @@ class RegistrationController extends Controller
         if ($userInvite->language) {
             Yii::$app->language = $userInvite->language;
         }
-        $form->getUser()->email = $userInvite->email;
+        if (strpos($userInvite->email,"noreply@") !== false){
+            $form->enableEmailField = true;
+            $form->getUser()->email = null;
+        } else {
+            $form->getUser()->email = $userInvite->email;
+        }
     }
 
     /**
