@@ -125,7 +125,11 @@ $form = ActiveForm::begin([
 </div>
 <div class="modal-footer">
     <a href="#" data-action-click="ui.modal.submit" data-action-submit class="btn btn-primary"
-       data-ui-loader><?= $submitText ?></a>
+       data-ui-loader><?= $submitText ?>
+    </a>
+    <a href="#" class="btn btn-primary" data-action-click="ui.modal.submit" data-action-url="<?= $linkAction ?>" data-ui-loader>
+        <?= Yii::t('UserModule.invite', 'Create link') ?>
+    </a>
 </div>
 <?php ActiveForm::end() ?>
 

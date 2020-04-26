@@ -15,6 +15,7 @@ class InviteModal extends Widget
 {
     public $submitText;
     public $submitAction;
+    public $linkAction;
 
     /**
      * @var \humhub\modules\space\models\forms\InviteForm
@@ -34,6 +35,7 @@ class InviteModal extends Widget
             'canInviteExternal' => Yii::$app->getModule('user')->settings->get('auth.internalUsersCanInvite'),
             'submitText' => $this->submitText,
             'submitAction' => $this->submitAction,
+            'linkAction' => $this->linkAction,
             'model' => $this->model,
             'attribute' => $this->attribute,
             'searchUrl' => $this->searchUrl,

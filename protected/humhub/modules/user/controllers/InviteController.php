@@ -18,6 +18,7 @@ use humhub\modules\admin\permissions\ManageUsers;
 use humhub\modules\user\models\Invite;
 use humhub\modules\user\models\forms\Invite as InviteForm;
 use humhub\widgets\ModalClose;
+use yii\helpers\Url;
 
 /**
  * InviteController for new user invites
@@ -67,6 +68,25 @@ class InviteController extends Controller
     }
 
     /**
+     * Invite form and processing action
+     *
+     * @return string the action result
+     * @throws \yii\web\HttpException
+     */
+    public function actionLink()
+    {
+        if (!$this->canInvite()) {
+            throw new HttpException(403, 'Invite denied!');
+        }
+
+        if (Yii::$app->request->post()) {
+            $link = $this->createLink();
+        }
+
+        return $this->renderAjax('link', ['link' => $link]);
+    }
+
+    /**
      * Creates and sends an e-mail invite
      *
      * @param email $email
@@ -86,6 +106,29 @@ class InviteController extends Controller
 
         $userInvite->save();
         $userInvite->sendInviteMail();
+    }
+
+    /**
+     * Creates and returns an invite link
+     *
+     * @param email $email
+     */
+
+
+    protected function createLink()
+    {
+        $userInvite = new Invite();
+        $userInvite->email = uniqid()."-noreply@email.com";
+        $userInvite->source = Invite::SOURCE_INVITE;
+        $userInvite->user_originator_id = Yii::$app->user->getIdentity()->id;
+
+        $existingInvite = Invite::findOne(['email' => $userInvite->email]);
+        if ($existingInvite !== null) {
+            $userInvite->token = $existingInvite->token;
+            $existingInvite->delete();
+        }
+        $userInvite->save();
+        return Url::to(['/user/registration', 'token' => $userInvite->token], true);
     }
 
     /**

@@ -61,7 +61,7 @@ class RegistrationController extends Controller
         $inviteToken = Yii::$app->request->get('token', '');
 
         if ($inviteToken != '') {
-            $this->handleInviteRegistration($inviteToken, $registration);
+            $invite = $this->handleInviteRegistration($inviteToken, $registration);
         } elseif (Yii::$app->session->has('authClient')) {
             $authClient = Yii::$app->session->get('authClient');
             $this->handleAuthClientRegistration($authClient, $registration);
@@ -70,7 +70,12 @@ class RegistrationController extends Controller
             return $this->redirect(['/user/auth/login']);
         }
 
-        if ($registration->submitted('save') && $registration->validate() && $registration->register($authClient)) {
+        if ($registration->submitted('save') && $registration->validate()) {
+            //overwrite invite email with user's entry to allow setApproved to work
+            $invite->email = $registration->models['User']->email;
+            $invite->save(false);
+            //Now register, this will save user
+            $registration->register($authClient);
             Yii::$app->session->remove('authClient');
 
             // Autologin when user is enabled (no approval required)
@@ -106,7 +111,13 @@ class RegistrationController extends Controller
         if ($userInvite->language) {
             Yii::$app->language = $userInvite->language;
         }
-        $form->getUser()->email = $userInvite->email;
+        if (strpos($userInvite->email,"noreply@") !== false){
+            $form->enableEmailField = true;
+            $form->getUser()->email = null;
+        } else {
+            $form->getUser()->email = $userInvite->email;
+        }
+        return $userInvite;
     }
 
     /**

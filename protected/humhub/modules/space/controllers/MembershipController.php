@@ -23,6 +23,9 @@ use humhub\modules\user\widgets\UserListBox;
 use humhub\widgets\ModalClose;
 use Yii;
 use yii\web\HttpException;
+//INVITELINK
+use humhub\modules\user\models\Invite;
+use yii\helpers\Url;
 
 /**
  * SpaceController is the main controller for spaces.
@@ -254,5 +257,46 @@ class MembershipController extends ContentContainerController
             'title' => Yii::t('SpaceModule.manage', "<strong>Members</strong>"),
         ]));
     }
+
+    //INVITE LINK
+      /**
+     * Invite form and processing action
+     *
+     * @return string the action result
+     * @throws \yii\web\HttpException
+     */
+    public function actionLink()
+    {
+        if (Yii::$app->request->post()) {
+            $link = $this->createLink();
+        }
+
+        return $this->renderAjax('link', ['link' => $link]);
+    }
+
+    /**
+     * Creates and returns an invite link
+     *
+     * @param email $email
+     */
+
+
+    protected function createLink()
+    {
+        $userInvite = new Invite();
+        $userInvite->email = uniqid()."-noreply@email.com";
+        $userInvite->source = Invite::SOURCE_INVITE;
+        $space = $this->getSpace();
+        $userInvite->space_invite_id = $space->id;
+        $userInvite->user_originator_id = Yii::$app->user->getIdentity()->id;
+
+        $existingInvite = Invite::findOne(['email' => $userInvite->email]);
+        if ($existingInvite !== null) {
+            $userInvite->token = $existingInvite->token;
+            $existingInvite->delete();
+        }
+        $userInvite->save();
+        return Url::to(['/user/registration', 'token' => $userInvite->token], true);
+    }    
 
 }
